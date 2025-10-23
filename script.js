@@ -1,59 +1,44 @@
-body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  background: url('https://images.unsplash.com/photo-1602526216074-6e1b5b1a5c5e?auto=format&fit=crop&w=1600&q=80') no-repeat center center fixed;
-  background-size: cover;
-  color: #333;
+// Login logic
+function login() {
+  const role = document.getElementById('role')?.value;
+  const username = document.getElementById('username')?.value;
+  const password = document.getElementById('password')?.value;
+
+  if (!username || !password) {
+    alert("Please enter both username and password.");
+    return;
+  }
+
+  if (role === 'farmer') {
+    window.location.href = 'farmer.html';
+  } else {
+    window.location.href = 'customer.html';
+  }
 }
 
-.login-box, nav, section {
-  margin: 20px 0;
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+// Show/hide dashboard sections
+function showSection(id) {
+  document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+  document.getElementById(id)?.classList.remove('hidden');
 }
 
-input, select, button {
-  display: block;
-  margin: 10px 0;
-  padding: 10px;
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1em;
+// Toggle registration form
+function toggleForm() {
+  const type = document.getElementById('userType')?.value;
+  document.getElementById('farmerForm')?.classList.toggle('hidden', type !== 'farmer');
+  document.getElementById('customerForm')?.classList.toggle('hidden', type !== 'customer');
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+// Farmer registration (mocked)
+document.getElementById('farmerForm')?.addEventListener('submit', function (e) {
+  e.preventDefault();
+  alert("Farmer registered successfully!");
+  window.location.href = 'index.html';
+});
 
-button:hover {
-  background-color: #388E3C;
-}
-
-.hidden {
-  display: none;
-}
-
-header, footer {
-  text-align: center;
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.85);
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-header h1 {
-  color: #2e7d32;
-  font-size: 2em;
-}
-
-footer {
-  font-size: 0.9em;
-  color: #555;
-}
+// Customer registration (mocked)
+document.getElementById('customerForm')?.addEventListener('submit', function (e) {
+  e.preventDefault();
+  alert("Customer registered successfully!");
+  window.location.href = 'index.html';
+});
