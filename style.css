@@ -1,0 +1,15 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+.login-box, nav, section {
+  margin: 20px 0;
+}
+input, select, button {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+}
+.hidden {
+  display: none;
+}
