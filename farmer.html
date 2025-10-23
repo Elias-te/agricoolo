@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farmer Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Farmer Dashboard</h1>
+  <nav>
+    <button onclick="showSection('upload')">Upload Product</button>
+    <button onclick="showSection('wallet')">Wallet</button>
+    <button onclick="showSection('sales')">Sales</button>
+    <button onclick="showSection('subscriptions')">Subscriptions</button>
+    <button onclick="showSection('ai')">AI Analysis</button>
+  </nav>
+
+  <section id="upload" class="hidden">
+    <h2>Upload Product</h2>
+    <form>
+      <input type="text" placeholder="Product Name" />
+      <input type="number" placeholder="Quantity" />
+      <input type="text" placeholder="Description" />
+      <input type="number" placeholder="Price" />
+      <input type="file" />
+      <input type="text" placeholder="Location" />
+      <select>
+        <option>Available</option>
+        <option>Out of Stock</option>
+      </select>
+      <button>Submit</button>
+    </form>
+  </section>
+
+  <!-- Add wallet, sales, subscriptions, ai sections similarly -->
+  <script src="script.js"></script>
+</body>
+</html>
