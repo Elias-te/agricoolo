@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register - Agri E-Commerce</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Register</h1>
+  <select id="userType" onchange="toggleForm()">
+    <option value="farmer">Farmer</option>
+    <option value="customer">Customer</option>
+  </select>
+
+  <!-- Farmer Registration -->
+  <form id="farmerForm">
+    <h2>Farmer Registration</h2>
+    <input type="text" placeholder="National ID" required />
+    <input type="text" placeholder="KRA PIN" required />
+    <input type="text" placeholder="Full Name" required />
+    <input type="text" placeholder="County" required />
+    <input type="text" placeholder="Subcounty" required />
+    <input type="tel" placeholder="Mobile Number" required />
+    <input type="text" placeholder="Username" required />
+    <input type="password" placeholder="Password" required />
+    <button type="submit">Register</button>
+  </form>
+
+  <!-- Customer Registration -->
+  <form id="customerForm" class="hidden">
+    <h2>Customer Registration</h2>
+    <input type="text" placeholder="Full Name" required />
+    <input type="email" placeholder="Email" required />
+    <input type="tel" placeholder="Mobile Number" required />
+    <input type="text" placeholder="Username" required />
+    <input type="password" placeholder="Password" required />
+    <button type="submit">Register</button>
+  </form>
+
+  <script src="script.js"></script>
+</body>
+</html>
