@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Customer Dashboard</h1>
+  <nav>
+    <button onclick="showSection('search')">Search</button>
+    <button onclick="showSection('cart')">Cart</button>
+    <button onclick="showSection('orders')">Orders</button>
+  </nav>
+
+  <section id="search" class="hidden">
+    <h2>Search Products</h2>
+    <input type="text" placeholder="Search..." />
+    <button>Search</button>
+  </section>
+
+  <section id="cart" class="hidden">
+    <h2>Your Cart</h2>
+    <p>No items yet.</p>
+  </section>
+
+  <section id="orders" class="hidden">
+    <h2>Order History</h2>
+    <p>No orders yet.</p>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
