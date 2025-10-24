@@ -1,15 +1,81 @@
+/* Base styling */
 body {
   font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #e0f7fa, #f1f8e9);
+  color: #333;
   padding: 20px;
+  margin: 0;
 }
+
+/* Layout spacing */
 .login-box, nav, section {
   margin: 20px 0;
 }
+
+/* Form elements */
 input, select, button {
   display: block;
+  width: 100%;
   margin: 10px 0;
-  padding: 8px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
+
+/* Button styling */
+button {
+  background-color: #388e3c;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2e7d32;
+}
+
+/* Login box styling */
+.login-box {
+  background-color: white;
+  padding: 30px;
+  max-width: 400px;
+  margin: 40px auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header and footer */
+header, footer {
+  text-align: center;
+  background-color: #2e7d32;
+  color: white;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+/* Register link */
+.register-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Utility class */
 .hidden {
   display: none;
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  input, select, button {
+    font-size: 14px;
+  }
 }
