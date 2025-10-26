@@ -1,37 +1,507 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Farmer Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agricoolo — Farmer Dashboard</title>
+
+  <!-- Simple, self-contained styles so this file works standalone -->
+  <style>
+    :root{
+      --bg:#f6f8fa; --card:#ffffff; --muted:#6b7280; --accent:#16a34a;
+      --glass: rgba(255,255,255,0.6);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:linear-gradient(180deg,#f3faf2 0%,var(--bg) 100%); color:#111827;
+      min-height:100vh; padding:20px;
+    }
+    header{display:flex;align-items:center;gap:16px; margin-bottom:20px;}
+    header h1{font-size:1.25rem;margin:0;}
+    header .subtitle{color:var(--muted);font-size:.9rem;}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:20px;}
+    @media (max-width:880px){ .layout{grid-template-columns:1fr;} nav{order:2} .main{order:1}}
+    nav{
+      background:var(--card); border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(15,23,42,0.06);
+      height:fit-content;
+    }
+    .nav-btn{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:none;background:transparent;color:#0f172a;cursor:pointer;margin-bottom:6px;font-weight:600}
+    .nav-btn[aria-current="true"]{background:linear-gradient(90deg,#ecfdf5,#ffffff); color:var(--accent)}
+    .card{background:var(--card); padding:16px;border-radius:12px; box-shadow:0 6px 18px rgba(15,23,42,0.04)}
+    .main{display:flex;flex-direction:column;gap:16px;}
+    form .row{display:flex;gap:12px}
+    form .col{flex:1}
+    label{display:block;font-size:.85rem;margin-bottom:6px;color:var(--muted)}
+    input[type="text"], input[type="number"], textarea, select, input[type="file"], input[type="date"]{
+      width:100%; padding:10px;border-radius:8px;border:1px solid #e6e9ef;background:transparent;
+    }
+    textarea{min-height:90px; resize:vertical}
+    .actions{display:flex;gap:8px; margin-top:12px}
+    button.primary{background:var(--accent); color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    button.ghost{background:transparent;border:1px solid #e6e9ef;padding:10px;border-radius:8px;cursor:pointer}
+    .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .product{display:flex;flex-direction:column;gap:8px}
+    .product img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+    .muted{color:var(--muted);font-size:.9rem}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid #eef2f7}
+    .empty{color:var(--muted);text-align:center;padding:18px}
+    .small{font-size:.85rem}
+    .pill{display:inline-block;padding:6px 8px;border-radius:999px;font-weight:600;font-size:.8rem}
+    .status-available{background:#ecfdf5;color:#065f46}
+    .status-out{background:#fff1f2;color:#991b1b}
+    footer{margin-top:18px;color:var(--muted);font-size:.85rem;text-align:center}
+    /* accessibility focus */
+    .nav-btn:focus, .primary:focus, .ghost:focus, button:focus { outline:3px solid rgba(34,197,94,0.18); outline-offset:2px; }
+  </style>
 </head>
 <body>
-  <h1>Farmer Dashboard</h1>
-  <nav>
-    <button onclick="showSection('upload')">Upload Product</button>
-    <button onclick="showSection('wallet')">Wallet</button>
-    <button onclick="showSection('sales')">Sales</button>
-    <button onclick="showSection('subscriptions')">Subscriptions</button>
-    <button onclick="showSection('ai')">AI Analysis</button>
-  </nav>
+  <header>
+    <div>
+      <h1>Agricoolo — Farmer Dashboard</h1>
+      <div class="subtitle">Manage products, sales, wallet and AI crop insights</div>
+    </div>
+  </header>
 
-  <section id="upload" class="hidden">
-    <h2>Upload Product</h2>
-    <form>
-      <input type="text" placeholder="Product Name" />
-      <input type="number" placeholder="Quantity" />
-      <input type="text" placeholder="Description" />
-      <input type="number" placeholder="Price" />
-      <input type="file" />
-      <input type="text" placeholder="Location" />
-      <select>
-        <option>Available</option>
-        <option>Out of Stock</option>
-      </select>
-      <button>Submit</button>
-    </form>
-  </section>
+  <div class="layout">
+    <nav aria-label="Farmer navigation" class="card">
+      <button class="nav-btn" onclick="showSection('upload')" id="nav-upload" aria-current="true">Upload Product</button>
+      <button class="nav-btn" onclick="showSection('products')" id="nav-products">My Products</button>
+      <button class="nav-btn" onclick="showSection('sales')" id="nav-sales">Sales</button>
+      <button class="nav-btn" onclick="showSection('wallet')" id="nav-wallet">Wallet</button>
+      <button class="nav-btn" onclick="showSection('subscriptions')" id="nav-sub">Subscriptions</button>
+      <button class="nav-btn" onclick="showSection('ai')" id="nav-ai">AI Analysis</button>
+    </nav>
 
-  <!-- Add wallet, sales, subscriptions, ai sections similarly -->
-  <script src="script.js"></script>
+    <main class="main">
+      <!-- Upload / Edit Product -->
+      <section id="upload" class="card" aria-labelledby="upload-heading">
+        <h2 id="upload-heading">Upload Product</h2>
+        <form id="productForm" aria-describedby="upload-help">
+          <div id="upload-help" class="muted small">Fill the fields and click Save Product. Images will be previewed locally.</div>
+
+          <div class="row" style="margin-top:12px">
+            <div class="col">
+              <label for="name">Product name</label>
+              <input id="name" name="name" type="text" placeholder="e.g., Fresh Tomatoes" required />
+            </div>
+            <div class="col">
+              <label for="qty">Quantity</label>
+              <input id="qty" name="quantity" type="number" min="0" step="1" placeholder="Kg / units" required />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div class="col">
+              <label for="price">Price (USD / unit)</label>
+              <input id="price" name="price" type="number" min="0" step="0.01" placeholder="e.g., 1.20" required />
+            </div>
+            <div class="col">
+              <label for="status">Status</label>
+              <select id="status" name="status" aria-label="Product availability">
+                <option value="available">Available</option>
+                <option value="out">Out of Stock</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label for="desc">Description</label>
+            <textarea id="desc" name="description" placeholder="Short description (variety, harvest date, organic, etc.)"></textarea>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div class="col">
+              <label for="location">Location (City / Region)</label>
+              <input id="location" name="location" type="text" placeholder="e.g., Nairobi, Nakuru" />
+            </div>
+            <div style="width:180px">
+              <label for="image">Image</label>
+              <input id="image" name="image" type="file" accept="image/*" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="primary" id="saveBtn">Save Product</button>
+            <button type="button" class="ghost" onclick="resetForm()">Reset</button>
+            <div id="formMsg" class="muted small" style="align-self:center"></div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Product listing -->
+      <section id="products" class="card" hidden>
+        <h2>My Products</h2>
+        <div id="productsContainer" class="products-grid" aria-live="polite"></div>
+        <div id="noProducts" class="empty" hidden>No products yet. Add one through "Upload Product".</div>
+      </section>
+
+      <!-- Sales -->
+      <section id="sales" class="card" hidden>
+        <h2>Sales</h2>
+        <div class="muted small">Overview of recent orders</div>
+        <div style="margin-top:12px; overflow:auto">
+          <table aria-label="Recent sales">
+            <thead>
+              <tr><th>Order ID</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody id="salesBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Wallet -->
+      <section id="wallet" class="card" hidden>
+        <h2>Wallet</h2>
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="flex:1">
+            <div class="muted small">Current balance</div>
+            <div style="font-size:1.5rem;font-weight:700" id="balance">$0.00</div>
+            <div class="muted small">Pending payouts are processed in 3-5 business days.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="primary" onclick="addFundsPrompt()">Add Funds</button>
+            <button class="ghost" onclick="withdrawPrompt()">Withdraw</button>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <h3 class="small">Transactions</h3>
+          <div id="txList" class="muted small">No transactions yet.</div>
+        </div>
+      </section>
+
+      <!-- Subscriptions -->
+      <section id="subscriptions" class="card" hidden>
+        <h2>Subscriptions</h2>
+        <div class="muted small">Manage services (market listing boosts, analytics, priority support)</div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <label><input type="checkbox" id="subBoost" /> Boost listings (featured)</label>
+          <label><input type="checkbox" id="subAnalytics" /> Advanced Analytics</label>
+          <label><input type="checkbox" id="subSupport" /> Priority Support</label>
+          <div class="muted small">Changes are local demo toggles — integrate with your billing backend to persist.</div>
+        </div>
+      </section>
+
+      <!-- AI Analysis -->
+      <section id="ai" class="card" hidden>
+        <h2>AI Crop Analysis</h2>
+        <div class="muted small">Upload an image of a plant or field to get quick insights (disease detection, suggestions).</div>
+
+        <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-start">
+          <div style="flex:1">
+            <input id="aiImage" type="file" accept="image/*" />
+            <div style="margin-top:12px">
+              <button class="primary" onclick="runAICheck()">Analyze Image</button>
+              <button class="ghost" onclick="clearAI()">Clear</button>
+            </div>
+          </div>
+          <div style="width:260px">
+            <div id="aiPreview" class="card" style="padding:8px;text-align:center">
+              <div id="aiPreviewImg" style="height:160px; display:flex;align-items:center;justify-content:center;color:var(--muted)">No image</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="aiResults" style="margin-top:12px"></div>
+        <div class="muted small" style="margin-top:8px">Note: This is a demo UI. Replace runAICheck() network call with your ML/AI endpoint.</div>
+      </section>
+
+      <footer>
+        Built for demonstration — replace local storage parts with your backend for production.
+      </footer>
+    </main>
+  </div>
+
+  <!-- Client-side behaviour (local-only demo). Replace with server calls in production. -->
+  <script>
+    // Simple state persisted to localStorage so the UI is usable immediately
+    const STORAGE_KEYS = { products: 'ag_products_v1', wallet: 'ag_wallet_v1', sales: 'ag_sales_v1' };
+
+    function loadState(){
+      const products = JSON.parse(localStorage.getItem(STORAGE_KEYS.products) || '[]');
+      const wallet = JSON.parse(localStorage.getItem(STORAGE_KEYS.wallet) || '{"balance":0,"tx":[]}');
+      const sales = JSON.parse(localStorage.getItem(STORAGE_KEYS.sales) || '[]');
+      return { products, wallet, sales };
+    }
+    function saveState({products, wallet, sales}){
+      localStorage.setItem(STORAGE_KEYS.products, JSON.stringify(products));
+      localStorage.setItem(STORAGE_KEYS.wallet, JSON.stringify(wallet));
+      localStorage.setItem(STORAGE_KEYS.sales, JSON.stringify(sales));
+    }
+
+    // Navigation
+    const sections = ['upload','products','sales','wallet','subscriptions','ai'];
+    function showSection(id){
+      sections.forEach(s=>{
+        const el = document.getElementById(s);
+        const nav = document.getElementById('nav-'+s);
+        if(!el) return;
+        if(s===id){ el.hidden = false; if(nav) nav.setAttribute('aria-current','true'); }
+        else { el.hidden = true; if(nav) nav.removeAttribute('aria-current'); }
+      });
+      // Ensure products list refresh when shown
+      if(id === 'products') renderProducts();
+      if(id === 'wallet') renderWallet();
+      if(id === 'sales') renderSales();
+    }
+
+    // Form handling
+    const form = document.getElementById('productForm');
+    let editingId = null;
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const quantity = Number(form.quantity.value || 0);
+      const price = Number(form.price.value || 0);
+      const status = form.status.value;
+      const description = form.description.value.trim();
+      const location = form.location.value.trim();
+
+      if(!name || quantity < 0 || price < 0){ showFormMsg('Please provide valid values.', true); return; }
+
+      const file = form.image.files[0];
+      let dataUrl = '';
+      if(file){
+        dataUrl = await readFileAsDataURL(file);
+      }
+
+      const state = loadState();
+      if(editingId){
+        const idx = state.products.findIndex(p=>p.id===editingId);
+        if(idx !== -1){
+          state.products[idx] = { ...state.products[idx], name, quantity, price, status, description, location, image: dataUrl || state.products[idx].image, updatedAt: new Date().toISOString() };
+        }
+        editingId = null;
+      } else {
+        const id = 'p_' + Date.now();
+        state.products.unshift({ id, name, quantity, price, status, description, location, image: dataUrl, createdAt: new Date().toISOString() });
+      }
+      saveState(state);
+      form.reset();
+      showFormMsg('Product saved.', false);
+      renderProducts();
+      showSection('products');
+    });
+
+    function resetForm(){
+      editingId = null;
+      form.reset();
+      showFormMsg('', false);
+    }
+
+    function showFormMsg(msg, isError){
+      const el = document.getElementById('formMsg');
+      el.textContent = msg;
+      el.style.color = isError ? '#991b1b' : 'var(--muted)';
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise((res, rej)=>{
+        const r = new FileReader();
+        r.onload = ()=>res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+    }
+
+    // Products rendering
+    function renderProducts(){
+      const { products } = loadState();
+      const container = document.getElementById('productsContainer');
+      const noProducts = document.getElementById('noProducts');
+      container.innerHTML = '';
+      if(!products || products.length === 0){
+        noProducts.hidden = false;
+        return;
+      }
+      noProducts.hidden = true;
+      products.forEach(p=>{
+        const card = document.createElement('div');
+        card.className = 'card product';
+        const img = document.createElement('img');
+        img.alt = p.name;
+        img.src = p.image || 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#eef2f7"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#9ca3af" font-size="24">No Image</text></svg>');
+        const titleRow = document.createElement('div');
+        titleRow.style.display='flex'; titleRow.style.justifyContent='space-between'; titleRow.style.alignItems='center';
+        const title = document.createElement('div'); title.innerHTML = `<strong>${escapeHtml(p.name)}</strong><div class="muted small">${escapeHtml(p.location||'')}</div>`;
+        const pill = document.createElement('div'); pill.className='pill ' + (p.status==='available' ? 'status-available' : 'status-out'); pill.textContent = p.status==='available' ? 'Available' : 'Out';
+        titleRow.appendChild(title); titleRow.appendChild(pill);
+
+        const meta = document.createElement('div');
+        meta.className='small muted';
+        meta.textContent = `${p.quantity} • $${Number(p.price).toFixed(2)}`;
+
+        const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+        const edit = document.createElement('button'); edit.className='ghost'; edit.textContent='Edit'; edit.onclick = ()=>editProduct(p.id);
+        const del = document.createElement('button'); del.className='ghost'; del.textContent='Delete'; del.onclick = ()=>deleteProduct(p.id);
+        actions.appendChild(edit); actions.appendChild(del);
+
+        card.appendChild(img);
+        card.appendChild(titleRow);
+        card.appendChild(meta);
+        card.appendChild(actions);
+        container.appendChild(card);
+      });
+    }
+
+    function editProduct(id){
+      const state = loadState();
+      const p = state.products.find(x=>x.id===id);
+      if(!p) return;
+      editingId = id;
+      form.name.value = p.name;
+      form.quantity.value = p.quantity;
+      form.price.value = p.price;
+      form.status.value = p.status;
+      form.description.value = p.description || '';
+      form.location.value = p.location || '';
+      showSection('upload');
+      showFormMsg('Editing product — choose a new image to replace (optional).', false);
+    }
+
+    function deleteProduct(id){
+      if(!confirm('Delete this product?')) return;
+      const state = loadState();
+      state.products = state.products.filter(p=>p.id!==id);
+      saveState(state);
+      renderProducts();
+    }
+
+    // Sales demo data
+    function seedSalesIfEmpty(){
+      const state = loadState();
+      if(!state.sales || state.sales.length === 0){
+        state.sales = [
+          { id:'o_'+Date.now(), product:'Fresh Tomatoes', qty:20, total:24.00, status:'paid', date:new Date().toISOString() },
+          { id:'o_'+(Date.now()-86400000), product:'Maize (Grade A)', qty:100, total:150.00, status:'processing', date:new Date(Date.now()-86400000).toISOString() }
+        ];
+        saveState(state);
+      }
+    }
+
+    function renderSales(){
+      seedSalesIfEmpty();
+      const { sales } = loadState();
+      const tbody = document.getElementById('salesBody');
+      tbody.innerHTML = '';
+      if(!sales || sales.length === 0){
+        const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan=6; td.className='empty'; td.textContent='No sales yet'; tr.appendChild(td); tbody.appendChild(tr); return;
+      }
+      sales.forEach(s=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(s.id)}</td>
+                        <td>${escapeHtml(s.product)}</td>
+                        <td>${escapeHtml(String(s.qty))}</td>
+                        <td>$${Number(s.total).toFixed(2)}</td>
+                        <td>${escapeHtml(s.status)}</td>
+                        <td>${new Date(s.date).toLocaleString()}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Wallet demo
+    function renderWallet(){
+      const { wallet } = loadState();
+      document.getElementById('balance').textContent = '$' + Number(wallet.balance || 0).toFixed(2);
+      const txList = document.getElementById('txList');
+      if(!wallet.tx || wallet.tx.length === 0){
+        txList.textContent = 'No transactions yet.';
+        return;
+      }
+      txList.innerHTML = wallet.tx.map(t=>`${new Date(t.date).toLocaleString()} — ${escapeHtml(t.desc)} — $${Number(t.amount).toFixed(2)}`).join('<br/>');
+    }
+
+    function addFundsPrompt(){
+      const amt = prompt('Enter amount to add (USD):', '10');
+      const a = Number(amt);
+      if(!amt || isNaN(a) || a<=0) return alert('Invalid amount');
+      const state = loadState();
+      state.wallet.balance = (state.wallet.balance || 0) + a;
+      state.wallet.tx = state.wallet.tx || [];
+      state.wallet.tx.unshift({ date:new Date().toISOString(), amount: a, desc:'Manual top-up' });
+      saveState(state);
+      renderWallet();
+      alert('Funds added (demo)');
+    }
+
+    function withdrawPrompt(){
+      const amt = prompt('Enter amount to withdraw (USD):', '10');
+      const a = Number(amt);
+      const state = loadState();
+      if(!amt || isNaN(a) || a<=0 || a > (state.wallet.balance || 0)) return alert('Invalid amount or insufficient funds');
+      state.wallet.balance -= a;
+      state.wallet.tx.unshift({ date:new Date().toISOString(), amount: -a, desc:'Withdrawal' });
+      saveState(state);
+      renderWallet();
+      alert('Withdrawal requested (demo)');
+    }
+
+    // AI Analysis demo
+    function runAICheck(){
+      const file = document.getElementById('aiImage').files[0];
+      const resultEl = document.getElementById('aiResults');
+      resultEl.innerHTML = '';
+      if(!file) { resultEl.innerHTML = '<div class="muted small">Please select an image first.</div>'; return; }
+      const preview = document.getElementById('aiPreviewImg');
+      readFileAsDataURL(file).then(dataUrl=>{
+        preview.innerHTML = '<img src="'+dataUrl+'" alt="preview" style="max-width:100%;max-height:160px;border-radius:6px" />';
+      });
+
+      // Simulate analysis (replace with fetch to your ML service)
+      resultEl.innerHTML = '<div class="muted small">Analyzing...</div>';
+      setTimeout(()=>{
+        // Fake result choices
+        const possible = [
+          {label:'Healthy crop', confidence:0.88, advice:'No action needed. Keep standard watering schedule.'},
+          {label:'Early blight detected', confidence:0.76, advice:'Isolate affected plants and apply recommended fungicide.'},
+          {label:'Nutrient deficiency (Nitrogen)', confidence:0.69, advice:'Apply balanced NPK fertilizer; monitor leaf color.'}
+        ];
+        // Choose one pseudo-randomly
+        const r = possible[Math.floor(Math.random()*possible.length)];
+        resultEl.innerHTML = `<div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="flex:1">
+              <h3 style="margin:0">${escapeHtml(r.label)}</h3>
+              <div class="muted small">Confidence: ${(r.confidence*100).toFixed(0)}%</div>
+              <p style="margin-top:8px">${escapeHtml(r.advice)}</p>
+            </div>
+            <div style="width:160px;text-align:center">
+              <div class="small muted">Suggested action</div>
+              <button class="primary" onclick="applyAIAction()">Apply recommendations</button>
+            </div>
+          </div>`;
+      }, 900);
+    }
+
+    function applyAIAction(){
+      alert('Applied suggestion (demo). Integrate with your task manager or farm management system to create real tasks.');
+    }
+
+    function clearAI(){
+      document.getElementById('aiPreviewImg').innerHTML = 'No image';
+      document.getElementById('aiResults').innerHTML = '';
+      document.getElementById('aiImage').value = '';
+    }
+
+    // Utility and initialization
+    function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+    // Seed a demo product and render initial UI
+    (function init(){
+      const state = loadState();
+      if(!state.products || state.products.length===0){
+        state.products = [
+          { id:'p_demo1', name:'Demo Tomatoes', quantity:50, price:1.2, status:'available', description:'Vine-ripened', location:'Demo Farm', image:'', createdAt:new Date().toISOString() }
+        ];
+        saveState(state);
+      }
+      renderProducts();
+      renderWallet();
+      renderSales();
+      // initial visible section
+      showSection('upload');
+    })();
+  </script>
 </body>
 </html>
