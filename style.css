@@ -10,10 +10,14 @@
 :root {
   --bg-1: #f0fbf2; /* light green */
   --bg-2: #fffef6; /* warm cream */
+  --bg-dark: #0b3d1a; /* dark green page background fallback */
+  --bg-image: url('/assets/images/ai-woman-market.jpg'); /* point this to your AI-generated image */
+  --bg-overlay: rgba(6, 40, 20, 0.56); /* dark overlay to ensure contrast */
+  --page-text: #e8f6ea; /* lighter text for page-level content over dark background */
   --accent-1: #2e7d32; /* deep green */
   --accent-2: #66bb6a; /* fresh green */
   --soil: #7a5a3c; /* brown */
-  --text: #263238; /* almost black */
+  --text: #263238; /* almost black (keeps card text readable on white) */
   --muted: #6b7280;
   --card-bg: #ffffff;
   --glass: rgba(255,255,255,0.6);
@@ -31,10 +35,22 @@
 html,body { height: 100%; }
 body {
   font-family: "Nunito", "Segoe UI", Roboto, Arial, sans-serif;
-  background:
-    radial-gradient(circle at 10% 10%, rgba(102,187,106,0.06), transparent 10%),
-    linear-gradient(120deg, var(--bg-1) 0%, var(--bg-2) 100%);
-  color: var(--text);
+
+  /* Layered background:
+     1) a semi-opaque dark overlay for contrast,
+     2) the AI-generated photograph (use --bg-image),
+     3) a dark-green fallback color (--bg-dark) if image is missing.
+     This keeps text readable while showing the photo as a page background.
+  */
+  background-color: var(--bg-dark);
+  background-image:
+    linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+    var(--bg-image);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed;
+  color: var(--page-text);
   padding: 24px;
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -43,13 +59,24 @@ body {
   font-size: 16px;
 }
 
+/* If the image is not present (404), browsers still show the overlay color above the fallback color.
+   For environments where you prefer the original light theme, you can toggle a class on <body>
+   (e.g., <body class="no-photo">) to restore the previous gradient (see .no-photo below). */
+body.no-photo {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(102,187,106,0.06), transparent 10%),
+    linear-gradient(120deg, var(--bg-1) 0%, var(--bg-2) 100%);
+  color: var(--text);
+}
+
 /* Top header (hero) */
 header.site-header {
   max-width: 1100px;
   margin: 16px auto;
   padding: 28px;
   border-radius: calc(var(--radius) + 6px);
-  background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.12));
+  /* keep header card light so content is readable over the dark photo */
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.86));
   box-shadow: var(--shadow);
   display: grid;
   grid-template-columns: 1fr auto;
@@ -324,6 +351,11 @@ header.site-header::after {
   color: var(--accent-1);
   font-weight: 700;
   font-size: 12px;
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }
 
 /* End of stylesheet */
